@@ -33,6 +33,8 @@ int main()
     res.push_back('E');
     cout<<res<<endl;
 
+    //right most derivation
+
     for(int i = 0 ; i < len ; i++)
     {
         index = Operator(str[i]);
@@ -51,5 +53,8 @@ int main()
             cout<<res<<endl;
         }
     }
+
+    //left most derivation [j=0, +2, print together, EF_j_pos]
+
     return 0;
 }
