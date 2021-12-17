@@ -3,15 +3,24 @@ using namespace std;
 
 void follow(char c);
 
-int m=0, i=0, j=0, index_first_table = 0, index_follow_table = 0;
+int m=0, i=0, j=0;
 char followSet[10];
 
 char production[10][10];
 char firstTable[10][10];
 char followTable[10][10];
 
-map< char, map< char, string> > mp;
+vector<char> terminals;
 
+int mark[500];
+
+void PrintTabSpace(int j)
+{
+    for(int i=0; i<j; i++)
+    {
+        cout<<'\t';
+    }
+}
 void follow(char c)
 {
      if(production[0][0] == c)
@@ -58,13 +67,93 @@ void follow(char c)
 }
 
 
-void MakeParsingTable()
+void FindTerminals()
 {
-    mp.insert({ 'c', {'b', "hi"} });
-    for (auto itr = mp.begin(); itr != mp.end(); ++itr) {
-        cout<<itr->first<<'\t'<<endl;//itr->second <<endl;//'\n';
+     for(int i=0; i<8; i++)
+    {
+        for(int j=0; j<strlen(firstTable[i]); j++)
+        {
+            if(mark[firstTable[i][j]] == 0 && firstTable[i][j] != '#')
+            {
+                terminals.push_back(firstTable[i][j]);
+                mark[firstTable[i][j]] = 1;
+            }
+        }
     }
 
+    for(int i=0; i<8; i++)
+    {
+        for(int j=0; j<strlen(followTable[i]); j++)
+        {
+            if(mark[followTable[i][j]] == 0 && firstTable[i][j] != '#')
+            {
+                terminals.push_back(followTable[i][j]);
+                mark[followTable[i][j]] = 1;
+            }
+        }
+    }
+
+    //for (auto v : terminals)
+     //   cout << v << " ";
+}
+
+void MakeParsingTable()
+{
+    cout<<"\n\t\tParsing table\t\t"<<endl;
+    cout<<"===========================================================\n"<<endl;
+    printf("%-8s","");
+    for(int i=0; i<terminals.size(); i++)
+    {
+        //cout<<'\t'<<terminals[i];
+        printf("%-8c",terminals[i]);
+    }
+
+    cout<<"\n---------------------------------------------------------------\n"<<endl;
+
+    for(int i=0; i<8; i++)
+    {
+        //cout<<production[i][0]<<"      |";
+        printf("%-7c|", production[i][0]);
+
+        for(int j=0; j<terminals.size(); j++)
+        {
+            if(production[i][2] != '#')
+            {
+                int isfound = 0;
+                for(int k=0; k<strlen(firstTable[i]); k++)
+                {
+                    if(terminals[j] == firstTable[i][k])
+                    {
+                        printf("%-8s",production[i]);
+                        isfound = 1;
+                        break;
+                    }
+
+                }
+
+                if(isfound == 0)
+                    printf("%-8s","");
+            }
+            else
+            {
+                int isfound = 0;
+                for(int k=0; k<strlen(followTable[i]); k++)
+                {
+                    if(terminals[j] == followTable[i][k])
+                    {
+                        printf("%-8s",production[i]);
+                        isfound = 1;
+                        break;
+                    }
+                }
+
+                if(isfound == 0)
+                    printf("%-8s","");
+            }
+
+        }
+        cout<<endl;
+    }
 }
 int main()
 {
@@ -99,13 +188,13 @@ int main()
 
         follow(c);
 
-        printf("FOLLOW(%c) = { ", c);
+        printf("FOLLOW(%c) = {", c);
 
         strcpy(followTable[i], followSet);
 
         for(int i=0; i<m; i++)
        {
-            printf("%c, ",followSet[i]);
+            printf("%c,",followSet[i]);
 
        }
 
@@ -115,6 +204,7 @@ int main()
     }
 
     //construct the map
+    FindTerminals();
     MakeParsingTable();
 
  return 0;
